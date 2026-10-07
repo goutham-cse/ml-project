@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+
+{% block title %}Placement Readiness Assessment — Input Form{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+    <div>
+      <h1 class="card-title">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        College Placement Readiness Assessor
+      </h1>
+      <p class="card-subtitle">Fill in your academic performance, coding scores, GitHub & LinkedIn metrics to calculate your placement readiness score & tier.</p>
+    </div>
+    <a href="{{ url_for('analytics') }}" class="btn btn-outline btn-sm">📊 View ML Model Metrics (94.2% Acc)</a>
+  </div>
+
+  <form action="{{ url_for('predict') }}" method="POST">
+    
+    <!-- Section 1: Basic & Academics -->
+    <div style="background: #f8fafc; padding: 1.25rem; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 1.5rem;">
+      <h3 style="font-size: 1.1rem; color: var(--primary); margin-bottom: 1rem; font-weight: 700;">1. Personal & Academic Background</h3>
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="name">Candidate Name</label>
+          <input type="text" id="name" name="name" class="form-control" value="{{ username }}" required>
+        </div>
+
+        <div class="form-group">
+          <label for="dept">Department / Branch</label>
+          <select id="dept" name="dept" class="form-control" required>
+            <option value="Computer Science">Computer Science & Engineering</option>
+            <option value="Information Technology">Information Technology</option>
+            <option value="Electronics & Comm">Electronics & Communication</option>
+            <option value="Electrical & Electronics">Electrical & Electronics</option>
+            <option value="Mechanical">Mechanical Engineering</option>
+            <option value="Civil">Civil Engineering</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="cgpa">Current CGPA (5.0 - 10.0)</label>
+          <input type="number" step="0.01" min="5.0" max="10.0" id="cgpa" name="cgpa" class="form-control" value="8.4" required>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 2: Coding & DSA -->
+    <div style="background: #f8fafc; padding: 1.25rem; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 1.5rem;">
+      <h3 style="font-size: 1.1rem; color: var(--primary); margin-bottom: 1rem; font-weight: 700;">2. Coding & Problem Solving (LeetCode / DSA)</h3>
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="leetcode_rating">LeetCode Rating (e.g. 1450)</label>
+          <input type="number" min="800" max="2500" id="leetcode_rating" name="leetcode_rating" class="form-control" value="1520" required>
+        </div>
+
+        <div class="form-group">
+          <label for="leetcode_solved">LeetCode Solved Count</label>
+          <input type="number" min="0" max="1000" id="leetcode_solved" name="leetcode_solved" class="form-control" value="240" required>
+        </div>
+
+        <div class="form-group">
+          <label for="skills">Technical Skills (comma separated)</label>
+          <input type="text" id="skills" name="skills" class="form-control" value="Python, Data Structures, Web Development, SQL, Git" required>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 3: GitHub & Open Source -->
+    <div style="background: #f8fafc; padding: 1.25rem; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 1.5rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 1rem;">
+        <h3 style="font-size: 1.1rem; color: var(--primary); font-weight: 700;">3. GitHub Activity Analysis</h3>
+        <span style="font-size: 0.85rem; color: var(--text-muted);">Enter handle for auto-API fetch or type metrics manually</span>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group" style="grid-column: 1 / -1;">
+          <label for="github_handle">GitHub Username / Handle</label>
+          <div style="display: flex; gap: 0.75rem;">
+            <input type="text" id="github_handle" name="github_handle" class="form-control" placeholder="e.g. torvalds or your username">
+            <button type="button" id="fetch_gh_btn" class="btn btn-secondary" onclick="fetchGitHubMetrics()">
+              ⚡ Auto-Fetch GitHub API
+            </button>
+          </div>
+          <div id="gh_status" style="font-size: 0.85rem; margin-top: 0.4rem; color: var(--text-muted);"></div>
+        </div>
+
+        <div class="form-group">
+          <label for="github_repos">Public Repositories</label>
+          <input type="number" min="0" max="100" id="github_repos" name="github_repos" class="form-control" value="8">
+        </div>
+
+        <div class="form-group">
+          <label for="github_commits_year">Annual Commits (Est.)</label>
+          <input type="number" min="0" max="2000" id="github_commits_year" name="github_commits_year" class="form-control" value="220">
+        </div>
+
+        <div class="form-group">
+          <label for="github_stars">Stars Received</label>
+          <input type="number" min="0" max="500" id="github_stars" name="github_stars" class="form-control" value="12">
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 4: LinkedIn & Networking -->
+    <div style="background: #f8fafc; padding: 1.25rem; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 1.5rem;">
+      <h3 style="font-size: 1.1rem; color: var(--primary); margin-bottom: 1rem; font-weight: 700;">4. LinkedIn & Professional Social Footprint</h3>
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="linkedin_connections">LinkedIn Connections Count</label>
+          <input type="number" min="0" max="500" id="linkedin_connections" name="linkedin_connections" class="form-control" value="320">
+        </div>
+
+        <div class="form-group">
+          <label for="linkedin_certs">Verified Domain Certifications</label>
+          <input type="number" min="0" max="15" id="linkedin_certs" name="linkedin_certs" class="form-control" value="3">
+        </div>
+
+        <div class="form-group">
+          <label for="linkedin_posts_freq">Activity / Post Frequency (1 to 10)</label>
+          <input type="number" min="1" max="10" id="linkedin_posts_freq" name="linkedin_posts_freq" class="form-control" value="6">
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 5: Real World Projects -->
+    <div style="background: #f8fafc; padding: 1.25rem; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 1.5rem;">
+      <h3 style="font-size: 1.1rem; color: var(--primary); margin-bottom: 1rem; font-weight: 700;">5. Practical Projects Portfolio</h3>
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="projects_count">Number of Completed Projects</label>
+          <input type="number" min="0" max="15" id="projects_count" name="projects_count" class="form-control" value="3" required>
+        </div>
+
+        <div class="form-group">
+          <label for="project_complexity">Highest Project Complexity Level</label>
+          <select id="project_complexity" name="project_complexity" class="form-control" required>
+            <option value="Basic">Basic (HTML/CSS, Simple Scripts)</option>
+            <option value="Intermediate" selected>Intermediate (CRUD Web Apps, API integration)</option>
+            <option value="Advanced">Advanced (Full Stack, Database, Auth, Cloud)</option>
+            <option value="Production-Grade">Production-Grade (ML Pipeline, Microservices, CI/CD)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 1rem; font-size: 1.1rem; border-radius: 10px;">
+      🚀 Analyze & Predict Placement Readiness
+    </button>
+  </form>
+</div>
+
+<script>
+function fetchGitHubMetrics() {
+  const handle = document.getElementById('github_handle').value.trim();
+  const statusDiv = document.getElementById('gh_status');
+
+  if (!handle) {
+    statusDiv.innerHTML = '<span style="color: var(--danger);">Please enter a GitHub username first.</span>';
+    return;
+  }
+
+  statusDiv.innerHTML = '⏳ Querying GitHub REST API...';
+
+  fetch('/api/fetch_github', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ github_handle: handle })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.profile_found) {
+      document.getElementById('github_repos').value = data.repos;
+      document.getElementById('github_commits_year').value = data.commits_year;
+      document.getElementById('github_stars').value = data.stars;
+      statusDiv.innerHTML = `<span style="color: var(--success); font-weight: 600;">✓ Live GitHub data fetched for '${data.username}'! (${data.repos} repos, ${data.stars} stars)</span>`;
+    } else {
+      statusDiv.innerHTML = `<span style="color: var(--warning);">GitHub profile notice: Estimated defaults loaded for '${handle}'.</span>`;
+    }
+  })
+  .catch(err => {
+    statusDiv.innerHTML = '<span style="color: var(--danger);">Error connecting to GitHub API.</span>';
+  });
+}
+</script>
+{% endblock %}

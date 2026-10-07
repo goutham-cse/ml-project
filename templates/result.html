@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}Placement Readiness Assessment Report — {{ r.name }}{% endblock %}
+
+{% block content %}
+<!-- Hero Results Banner -->
+<div class="results-hero">
+  <div style="text-align: center;">
+    <div class="gauge-circle" style="--percentage: {{ r.readiness_score }};">
+      <div class="gauge-inner">
+        <div class="gauge-score">{{ r.readiness_score }}%</div>
+        <div class="gauge-label">Readiness Score</div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0.5rem;">
+      <span class="badge {{ r.tier_badge_class }}">{{ r.tier_label }}</span>
+      <span style="font-size: 0.9rem; color: var(--text-muted);">Candidate: <strong>{{ r.name }}</strong> ({{ r.dept }})</span>
+    </div>
+
+    <h2 style="font-size: 1.6rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.5rem;">
+      Placement Environment Assessment
+    </h2>
+
+    <p style="color: var(--text-muted); font-size: 1rem; margin-bottom: 1rem;">
+      {{ r.tier_desc }}
+    </p>
+
+    <div style="background: #ffffff; padding: 1rem; border-radius: 8px; border: 1px solid var(--border-color); font-size: 0.95rem; color: var(--text-main);">
+      <strong>AI Executive Summary:</strong> {{ r.summary | safe }}
+    </div>
+  </div>
+</div>
+
+<!-- Competency Scores Overview -->
+<div class="card">
+  <h3 class="card-title">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.5"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
+    Competency Score Breakdown
+  </h3>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem;">
+    <div style="background: #f8fafc; padding: 1rem; border-radius: 8px; border: 1px solid var(--border-color);">
+      <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Academic CGPA</div>
+      <div style="font-size: 1.5rem; font-weight: 800; color: var(--primary);">{{ r.cgpa_score }}%</div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: {{ r.cgpa_score }}%;"></div></div>
+      <small style="color: var(--text-muted);">CGPA: {{ r.cgpa }}/10.0</small>
+    </div>
+
+    <div style="background: #f8fafc; padding: 1rem; border-radius: 8px; border: 1px solid var(--border-color);">
+      <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Coding & DSA (LeetCode)</div>
+      <div style="font-size: 1.5rem; font-weight: 800; color: var(--primary);">{{ r.coding_score }}%</div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: {{ r.coding_score }}%;"></div></div>
+      <small style="color: var(--text-muted);">Rating: {{ r.leetcode_rating }} | {{ r.leetcode_solved }} Solved</small>
+    </div>
+
+    <div style="background: #f8fafc; padding: 1rem; border-radius: 8px; border: 1px solid var(--border-color);">
+      <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">GitHub Open Source</div>
+      <div style="font-size: 1.5rem; font-weight: 800; color: var(--primary);">{{ r.github_score }}%</div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: {{ r.github_score }}%;"></div></div>
+      <small style="color: var(--text-muted);">{{ r.github_repos }} Repos | {{ r.github_commits_year }} Commits</small>
+    </div>
+
+    <div style="background: #f8fafc; padding: 1rem; border-radius: 8px; border: 1px solid var(--border-color);">
+      <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">LinkedIn Professional</div>
+      <div style="font-size: 1.5rem; font-weight: 800; color: var(--primary);">{{ r.linkedin_score }}%</div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: {{ r.linkedin_score }}%;"></div></div>
+      <small style="color: var(--text-muted);">{{ r.linkedin_connections }} Connections | {{ r.linkedin_certs }} Certs</small>
+    </div>
+
+    <div style="background: #f8fafc; padding: 1rem; border-radius: 8px; border: 1px solid var(--border-color);">
+      <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Projects & Skills</div>
+      <div style="font-size: 1.5rem; font-weight: 800; color: var(--primary);">{{ r.project_score }}%</div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: {{ r.project_score }}%;"></div></div>
+      <small style="color: var(--text-muted);">{{ r.projects_count }} Projects ({{ r.project_complexity }})</small>
+    </div>
+  </div>
+</div>
+
+<!-- Strengths, Weaknesses & Actionable Recommendations -->
+<div class="feedback-grid">
+  <!-- Key Strengths -->
+  <div class="feedback-card strengths-card">
+    <h3 style="font-size: 1.2rem; font-weight: 700; color: var(--success); display: flex; align-items: center; gap: 0.5rem;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      Key Strengths
+    </h3>
+    <ul class="feedback-list">
+      {% for s in r.strengths %}
+        <li>{{ s }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <!-- Key Weaknesses -->
+  <div class="feedback-card weaknesses-card">
+    <h3 style="font-size: 1.2rem; font-weight: 700; color: var(--danger); display: flex; align-items: center; gap: 0.5rem;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      Areas to Improve (Weaknesses)
+    </h3>
+    <ul class="feedback-list">
+      {% for w in r.weaknesses %}
+        <li>{{ w }}</li>
+      {% else %}
+        <li>No critical weaknesses detected! Continue maintaining your current trajectory.</li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+
+<!-- Actionable Improvement Roadmap -->
+<div class="card" style="margin-top: 1.5rem;">
+  <div class="feedback-card roadmap-card" style="border: none; padding: 0;">
+    <h3 style="font-size: 1.2rem; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 0.5rem;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+      Personalized Actionable Recommendations Roadmap
+    </h3>
+    <ul class="feedback-list" style="margin-top: 1rem;">
+      {% for rec in r.recommendations %}
+        <li>{{ rec }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+
+<div style="display: flex; gap: 1rem; justify-content: center; margin-top: 2rem;">
+  <a href="{{ url_for('index') }}" class="btn btn-secondary">← Take Another Assessment</a>
+  <a href="{{ url_for('analytics') }}" class="btn btn-primary">📊 View Complete ML Documentation Report</a>
+</div>
+{% endblock %}

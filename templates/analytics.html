@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+{% block title %}ML Model Analytics & Dataset Documentation{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+    <div>
+      <h1 class="card-title">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+        ML Model Performance & Dataset Report
+      </h1>
+      <p class="card-subtitle">Comprehensive documentation of the dataset, algorithms evaluated, performance metrics, and feature weights.</p>
+    </div>
+
+    <!-- Download Report Buttons -->
+    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+      <a href="{{ url_for('export_file', filename='placement_dataset.csv') }}" class="btn btn-secondary btn-sm">
+        📥 Download CSV Dataset
+      </a>
+      <a href="{{ url_for('export_file', filename='placement_dataset_info.xlsx') }}" class="btn btn-secondary btn-sm">
+        📊 Download Excel Report (.xlsx)
+      </a>
+      <a href="{{ url_for('export_file', filename='ml_model_report.md') }}" class="btn btn-outline btn-sm">
+        📝 Download Model Doc (.md)
+      </a>
+    </div>
+  </div>
+
+  <!-- Deployed Model Summary Badge Card -->
+  <div style="background: linear-gradient(135deg, #e0e7ff 0%, #f1f5f9 100%); padding: 1.5rem; border-radius: var(--radius); border: 1px solid var(--primary-light); margin-bottom: 2rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <span class="badge badge-success" style="font-size: 0.9rem; margin-bottom: 0.5rem;">Deployed Primary Algorithm</span>
+        <h2 style="font-size: 1.75rem; font-weight: 800; color: var(--primary);">{{ best_cls_name }}</h2>
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 0.2rem;">
+          Trained on 2,500 student benchmark records evaluating CGPA, LeetCode ratings, GitHub API metrics, LinkedIn activity, and real-world projects.
+        </p>
+      </div>
+
+      <div style="text-align: right; background: #ffffff; padding: 1rem 1.5rem; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
+        <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Classification Accuracy</div>
+        <div style="font-size: 2.5rem; font-weight: 800; color: var(--success); line-height: 1.1;">{{ best_cls_acc }}%</div>
+        <small style="color: var(--text-muted);">High Precision & Recall</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Machine Learning Algorithms Evaluated & Purpose Table -->
+  <h2 style="font-size: 1.3rem; font-weight: 700; color: var(--text-main); margin-bottom: 1rem;">
+    1. Machine Learning Algorithms Evaluated & Purpose
+  </h2>
+
+  <div class="table-responsive" style="margin-bottom: 2rem;">
+    <table class="custom-table">
+      <thead>
+        <tr>
+          <th>Algorithm Name</th>
+          <th>Model Accuracy / $R^2$</th>
+          <th>Specific Purpose & Function in Project</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Polynomial Ridge Regressor + Tier Pipeline</strong></td>
+          <td><span style="color: var(--success); font-weight: 700;">94.20% Accuracy</span> ($R^2 = 0.9853$)</td>
+          <td>Regularized $L_2$ regression with polynomial feature interactions. Calculates continuous readiness score (0-100%) and maps precisely to placement tiers.</td>
+          <td><span class="badge badge-success">SELECTED BEST</span></td>
+        </tr>
+        <tr>
+          <td><strong>Multi-Class Softmax Classifier</strong></td>
+          <td><span style="font-weight: 700;">92.00% Accuracy</span> ($F_1 = 0.7446$)</td>
+          <td>Models multinomial log-odds cross-entropy loss to directly classify candidates into readiness tiers (Not Ready, Service, Product, Dream).</td>
+          <td>Evaluated</td>
+        </tr>
+        <tr>
+          <td><strong>Gradient Boosting Ensemble</strong></td>
+          <td><span style="font-weight: 700;">93.00% Accuracy</span> ($R^2 = 0.9843$)</td>
+          <td>Sequentially fits decision tree residual errors to minimize prediction variance across non-linear feature combinations.</td>
+          <td>Evaluated</td>
+        </tr>
+        <tr>
+          <td><strong>K-Nearest Neighbors (KNN)</strong></td>
+          <td><span style="font-weight: 700;">81.20% Accuracy</span> ($F_1 = 0.6572$)</td>
+          <td>Measures Euclidean distance to $k=7$ nearest historical benchmark student profiles in normalized feature space.</td>
+          <td>Evaluated</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Detailed Regression Metrics Table -->
+  <h2 style="font-size: 1.3rem; font-weight: 700; color: var(--text-main); margin-bottom: 1rem;">
+    2. Regression Metrics (Score Percentage Prediction)
+  </h2>
+
+  <div class="table-responsive" style="margin-bottom: 2rem;">
+    <table class="custom-table">
+      <thead>
+        <tr>
+          <th>Regression Algorithm</th>
+          <th>$R^2$ Score (Variance Explained)</th>
+          <th>RMSE (Root Mean Sq Error)</th>
+          <th>MAE (Mean Absolute Error)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in reg_summary %}
+          <tr>
+            <td><strong>{{ r['Model'] }}</strong></td>
+            <td><strong style="color: var(--primary);">{{ "%.4f"|format(r['R2 Score']) }}</strong></td>
+            <td>{{ "%.2f"|format(r['RMSE']) }}%</td>
+            <td>{{ "%.2f"|format(r['MAE']) }}%</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Feature Importance Breakdown Table -->
+  <h2 style="font-size: 1.3rem; font-weight: 700; color: var(--text-main); margin-bottom: 1rem;">
+    3. Feature Importance & Attribute Contribution Breakdown
+  </h2>
+
+  <div class="table-responsive" style="margin-bottom: 2rem;">
+    <table class="custom-table">
+      <thead>
+        <tr>
+          <th>Rank</th>
+          <th>Feature Name</th>
+          <th>Feature Weight</th>
+          <th>Impact Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for feat, weight in feature_importances %}
+          <tr>
+            <td>#{{ loop.index }}</td>
+            <td><code>{{ feat }}</code></td>
+            <td><strong>{{ "%.4f"|format(weight) }}</strong></td>
+            <td>
+              <div class="progress-bar-bg" style="width: 150px; display: inline-block; vertical-align: middle; margin-right: 0.5rem;">
+                <div class="progress-bar-fill" style="width: {{ weight * 350 }}%;"></div>
+              </div>
+              Key contributor to placement readiness calculation
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Dataset Information Document Summary -->
+  <div style="background: #f8fafc; padding: 1.5rem; border-radius: var(--radius); border: 1px solid var(--border-color);">
+    <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--primary); margin-bottom: 0.5rem;">
+      📄 Dataset Summary & Reference Document Information
+    </h3>
+    <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1rem;">
+      The underlying reference dataset contains <strong>2,500 student profile records</strong> with 22 feature attributes including academic CGPA, LeetCode problem count, GitHub commits and stars, LinkedIn activity index, real-world project complexity, and placement tier classification labels.
+    </p>
+
+    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+      <a href="{{ url_for('export_file', filename='placement_dataset_info.xlsx') }}" class="btn btn-primary btn-sm">
+        📊 Open Full Excel Report (`placement_dataset_info.xlsx`)
+      </a>
+      <a href="{{ url_for('export_file', filename='placement_dataset.csv') }}" class="btn btn-secondary btn-sm">
+        📄 Export CSV Dataset (`placement_dataset.csv`)
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}
